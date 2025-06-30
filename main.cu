@@ -72,6 +72,8 @@ void paralelo(string imagePath, int intervalos) {
         cout << "Erro ao carregar a imagem!" << endl;
         return;
     }
+    // tempo inicio
+    auto inicio = chrono::high_resolution_clock::now();
 
     int linhas = imagem.rows;
     int colunas = imagem.cols;
@@ -98,8 +100,7 @@ void paralelo(string imagePath, int intervalos) {
     int threadsPorBloco = 256;
     int blocosPorGrid = (total_pixels + threadsPorBloco - 1) / threadsPorBloco; 
 
-    // tempo inicio
-    auto inicio = chrono::high_resolution_clock::now();
+    
 
     // Chamar o kernel definido previamente (a fun)
     calcularHistogramaGPU<<<blocosPorGrid, threadsPorBloco>>>(d_imagem, linhas, colunas, d_histograma, intervalos, tamanho_intervalo);
@@ -126,8 +127,30 @@ void paralelo(string imagePath, int intervalos) {
 }
 
 int main() {
-    sequencial("imagens/32k.png", 16);
-    paralelo("imagens/32k.png", 16);
+    int opcao;
+    string imagePath;
+    int intervalos;
+
+    cout << "Digite o caminho da imagem: ";
+    cin >> imagePath;
+
+    cout << "Digite o numero de intervalos: ";
+    cin >> intervalos;
+
+    cout << "\nEscolha o algoritmo:\n";
+    cout << "1 - Sequencial\n";
+    cout << "2 - Paralelo (CUDA)\n";
+    cout << "Opcao: ";
+    cin >> opcao;
+
+    switch (opcao) {
+        case 1:
+            sequencial(imagePath, intervalos);
+            break;
+        case 2:
+            paralelo(imagePath, intervalos);
+            break;
+    }
 
     return 0;
 }
